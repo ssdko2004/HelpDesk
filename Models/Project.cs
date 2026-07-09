@@ -15,9 +15,12 @@ namespace HelpDesk.Models
         [MaxLength(500)]
         public string? Description { get; set; }
         
-        public int DepartmentId { get; set; }
+        [Required]
+        public required Guid DepartmentId { get; set; }
+        public Department? Department { get; set; }
         
-        public string? TeamLeadUserId { get; set; }
+        public Guid? TeamLeadUserId { get; set; }
+        public ApplicationUser? TeamLeadUser { get; set; }
 
         public bool IsActive { get; set; } = true;
 

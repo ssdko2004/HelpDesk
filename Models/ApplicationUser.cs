@@ -3,12 +3,12 @@ using Microsoft.AspNetCore.Identity;
 
 namespace HelpDesk.Models
 {
-    public class ApplicationUser : IdentityUser
+    public class ApplicationUser : IdentityUser<Guid>
     {
         [Required]
         public required string FullName { get; set; }
 
-        public int? DepartmentId { get; set; }
+        public Guid? DepartmentId { get; set; }
 
         public bool IsActive { get; set; } = true;
 
