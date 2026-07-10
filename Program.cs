@@ -18,6 +18,14 @@ builder.Services.AddIdentity<ApplicationUser, IdentityRole<Guid>>()
 
 var app = builder.Build();
 
+// Auto-apply migrations in development so no manual `dotnet ef database update` is needed
+if (app.Environment.IsDevelopment())
+{
+    using var scope = app.Services.CreateScope();
+    var db = scope.ServiceProvider.GetRequiredService<ApplicationDbContext>();
+    db.Database.Migrate();
+}
+
 // Configure the HTTP request pipeline.
 if (!app.Environment.IsDevelopment())
 {
