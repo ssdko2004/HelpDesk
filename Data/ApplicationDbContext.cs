@@ -13,6 +13,9 @@ namespace HelpDesk.Data
         public DbSet<Project> Projects => Set<Project>();  
         public DbSet<TicketCategory> TicketCategories => Set<TicketCategory>();
         public DbSet<Ticket> Tickets => Set<Ticket>();
+        public DbSet<ProjectMember> ProjectMembers => Set<ProjectMember>();
+        public DbSet<TicketComment> TicketComments => Set<TicketComment>();
+        public DbSet<TicketHistory> TicketHistories => Set<TicketHistory>();
 
 
         protected override void OnModelCreating(ModelBuilder builder)
@@ -81,6 +84,56 @@ namespace HelpDesk.Data
                 entity.HasIndex(t => new { t.ProjectId, t.Status });
                 entity.HasIndex(t => new { t.RequesterUserId, t.CreatedAtUtc });
             });
-        }
+       
+            builder.Entity<ProjectMember>(entity =>
+            {
+                entity.HasOne(pm => pm.Project)
+                    .WithMany()
+                    .HasForeignKey(pm => pm.ProjectId)
+                    .OnDelete(DeleteBehavior.Cascade);
+
+                entity.HasOne(pm => pm.User)
+                    .WithMany()
+                    .HasForeignKey(pm => pm.UserId)
+                    .OnDelete(DeleteBehavior.Cascade);
+
+                entity.HasOne(pm => pm.AddedByUser)
+                    .WithMany()
+                    .HasForeignKey(pm => pm.AddedByUserId)
+                    .OnDelete(DeleteBehavior.NoAction);
+
+                entity.HasIndex(pm => new { pm.ProjectId, pm.UserId }).IsUnique();
+            });
+
+            builder.Entity<TicketComment>(entity =>
+            {
+                entity.HasOne(tc => tc.Ticket)
+                    .WithMany()
+                    .HasForeignKey(tc => tc.TicketId)
+                    .OnDelete(DeleteBehavior.Cascade);
+
+                entity.HasOne(tc => tc.User)
+                    .WithMany()
+                    .HasForeignKey(tc => tc.UserId)
+                    .OnDelete(DeleteBehavior.Restrict);
+
+                entity.HasIndex(tc => new { tc.TicketId, tc.CreatedAtUtc });
+            });
+
+            builder.Entity<TicketHistory>(entity =>
+            {
+                entity.HasOne(th => th.Ticket)
+                    .WithMany()
+                    .HasForeignKey(th => th.TicketId)
+                    .OnDelete(DeleteBehavior.Cascade);
+
+                entity.HasOne(th => th.ChangedByUser)
+                    .WithMany()
+                    .HasForeignKey(th => th.ChangedByUserId)
+                    .OnDelete(DeleteBehavior.Restrict);
+
+                entity.HasIndex(th => new { th.TicketId, th.CreatedAtUtc });
+            });
+       }
     }
 }
