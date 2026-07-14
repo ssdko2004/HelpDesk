@@ -9,6 +9,7 @@ namespace HelpDesk.Models
         public required string Title { get; set; }
 
         [Required]
+        [MaxLength(2000)]
         public required string Description { get; set; }
 
         public Guid? ProjectId { get; set; }

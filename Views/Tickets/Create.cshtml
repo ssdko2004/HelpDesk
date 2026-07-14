@@ -1,0 +1,102 @@
+@using HelpDesk.ViewModels
+@model CreateTicketViewModel
+
+<form asp-action="Create" method="post">
+    <div class="form-group">
+        <label asp-for="Title"></label>
+        <input asp-for="Title" class="form-control" />
+        <span asp-validation-for="Title" class="text-danger"></span>
+    </div>
+    <div class="form-group">
+        <label asp-for="Description"></label>
+        <textarea asp-for="Description" class="form-control"></textarea>
+        <span asp-validation-for="Description" class="text-danger"></span>
+    </div>
+    <div class="form-group">
+        <label asp-for="Priority"></label>
+        <select asp-for="Priority" class="form-select">
+            <option value="">Select Priority</option>
+            <option value="Low">Low</option>
+            <option value="Medium">Medium</option>
+            <option value="High">High</option>
+            <option value="Critical">Critical</option>
+        </select>
+
+        <span asp-validation-for="Priority" class="text-danger"></span>
+    </div>
+    <div class="form-group">
+        <label asp-for="CategoryId"></label>
+        <select asp-for="CategoryId" class="form-select" asp-items="ViewBag.Categories">
+            <option value="">Select Category</option>
+        </select>
+        <span asp-validation-for="CategoryId" class="text-danger"></span>
+    </div>
+
+    <div class="form-group">
+        <label asp-for="DepartmentId"></label>
+        <select asp-for="DepartmentId" class="form-select" asp-items="ViewBag.Departments">
+            <option value="">None</option>
+        </select>
+        <span asp-validation-for="DepartmentId" class="text-danger"></span>
+    </div>
+
+    <div class="form-group">
+        <label asp-for="ProjectId"></label>
+        <select asp-for="ProjectId" class="form-select" asp-items="ViewBag.Projects">
+            <option value="">None</option>
+        </select>
+        <span asp-validation-for="ProjectId" class="text-danger"></span>
+    </div>
+
+
+    
+    <button type="submit" class="btn btn-primary">Submit</button>
+</form>
+
+@section Scripts {
+    <script>
+        document.getElementById("DepartmentId")
+            .addEventListener("change", async function () {
+                
+                const departmentId = this.value;
+
+                const projectSelect = document.getElementById("ProjectId");
+
+                // Clear existing options
+                projectSelect.innerHTML = "";
+
+                // Add default option
+                const noneOption = document.createElement("option");
+                noneOption.value = "";
+                noneOption.text = "None";
+                projectSelect.appendChild(noneOption);
+
+
+                // If no department selected, stop here
+                if (!departmentId) {
+                    return;
+                }
+
+                // Call your controller action
+                const response = await fetch(
+                    `/Tickets/ProjectsByDepartment?departmentId=${departmentId}`
+                );
+
+                const projects = await response.json();
+
+
+                // Add returned projects
+                projects.forEach(project => {
+
+                    const option = document.createElement("option");
+
+                    option.value = project.id;
+                    option.text = project.name;
+
+                    projectSelect.appendChild(option);
+
+                });
+
+            });
+    </script>
+}
