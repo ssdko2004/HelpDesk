@@ -1,0 +1,43 @@
+@using HelpDesk.ViewModels
+@model MyTicketsViewModel
+
+
+ <a asp-controller="Tickets"
+    asp-action="Create"
+    class="btn btn-primary">
+    Create Ticket
+</a>
+<table class="table table-striped">
+    <thead>
+        <tr>           
+            <th>
+                <a asp-action="MyTickets" asp-route-sortOrder="@(Model.SortOrder == MyTicketSortOrders.TitleAsc ? MyTicketSortOrders.TitleDesc : MyTicketSortOrders.TitleAsc)">
+                    Title @(Model.SortOrder == MyTicketSortOrders.TitleAsc ? "▲" : Model.SortOrder == MyTicketSortOrders.TitleDesc ? "▼" : "")
+                </a>
+            </th>
+            <th>Category</th>
+            <th>Status</th>
+            <th>Department</th>
+            <th>Project</th>
+            <th>
+                <a asp-action="MyTickets" asp-route-sortOrder="@(Model.SortOrder == MyTicketSortOrders.DateAsc ? MyTicketSortOrders.DateDesc : MyTicketSortOrders.DateAsc)">
+                    Created Date(UTC) @(Model.SortOrder == MyTicketSortOrders.DateAsc ? "▲" : Model.SortOrder == MyTicketSortOrders.DateDesc ? "▼" : "")
+                </a>
+            </th>
+               
+        </tr>
+    </thead>
+    <tbody>
+        @foreach (var ticket in Model.Tickets)
+        {
+            <tr>               
+                <td>@ticket.Title</td>
+                <td>@ticket.Category?.Name</td>
+                <td>@ticket.Status</td>
+                <td>@ticket.Department?.Name</td>
+                <td>@ticket.Project?.Name</td>
+                <td>@ticket.CreatedAtUtc.ToString("MM/dd/yyyy")</td>
+            </tr>
+        }
+    </tbody>
+</table>

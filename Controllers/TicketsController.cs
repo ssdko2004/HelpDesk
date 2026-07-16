@@ -14,14 +14,9 @@ public class TicketsController(ApplicationDbContext context) : Controller
     ApplicationDbContext _context = context;
 
     [HttpGet]
-    public IActionResult Create()
-    {
-        ViewBag.Categories = new SelectList(
-            _context.TicketCategories.Where(c => c.IsActive).OrderBy(c => c.SortOrder), "Id", "Name");
-
-        ViewBag.Departments = new SelectList(
-            _context.Departments.Where(d => d.IsActive).OrderBy(d => d.Name), "Id", "Name");
-
+    public async Task<IActionResult> Create()
+    {                 
+        await PopulateDropdownsAsync(null);
         
         return View();
     }
@@ -31,12 +26,8 @@ public class TicketsController(ApplicationDbContext context) : Controller
     {
         if (!ModelState.IsValid)
         {
+            await PopulateDropdownsAsync(model);
             return View(model);
-        }
-
-        foreach (var claim in User.Claims)
-        {
-            Console.WriteLine($"{claim.Type}: {claim.Value}");
         }
 
         var ticket = new Ticket
@@ -56,13 +47,14 @@ public class TicketsController(ApplicationDbContext context) : Controller
         await _context.SaveChangesAsync();
 
 
-        //return RedirectToAction(nameof(MyTickets));
-        return RedirectToAction("Index", "Home");
+        
+        return RedirectToAction(nameof(MyTickets), "Tickets" );
     }
 
     [HttpGet]
-    public async Task<IActionResult> ProjectsByDepartmet(Guid departmentId)
+    public async Task<IActionResult> ProjectsByDepartmentAsync(Guid departmentId)
     {
+        Console.WriteLine($"Fetching projects for DepartmentId: {departmentId}");
         var projects = await _context.Projects
             .Where(p => p.DepartmentId == departmentId && p.IsActive)
             .OrderBy(p => p.Name)
@@ -71,5 +63,59 @@ public class TicketsController(ApplicationDbContext context) : Controller
 
         return Json(projects);
     }
+
+    [HttpGet]
+    public async Task<IActionResult> MyTickets(string sortOrder = MyTicketSortOrders.DateDesc)
+    {        
+
+        MyTicketsViewModel viewModel = new()
+        {
+            SortOrder = sortOrder
+        };
+
+        var userId = Guid.Parse(User.FindFirst(System.Security.Claims.ClaimTypes.NameIdentifier)?.Value ?? 
+            throw new Exception("User ID not found"));
+
+        IQueryable<Ticket> ticketsQuery = _context.Tickets;
+
+        ticketsQuery = ticketsQuery
+            .Where(t => t.RequesterUserId == userId)
+            .Include(t => t.Category)
+            .Include(t => t.Project)
+            .Include(t => t.Department);
+
+        ticketsQuery = sortOrder switch
+        {
+            MyTicketSortOrders.DateAsc => ticketsQuery.OrderBy(t => t.CreatedAtUtc),
+            MyTicketSortOrders.DateDesc => ticketsQuery.OrderByDescending(t => t.CreatedAtUtc),
+            MyTicketSortOrders.TitleAsc => ticketsQuery.OrderBy(t => t.Title),
+            MyTicketSortOrders.TitleDesc => ticketsQuery.OrderByDescending(t => t.Title),
+            MyTicketSortOrders.StatusAsc => ticketsQuery.OrderBy(t => t.Status),
+            MyTicketSortOrders.StatusDesc => ticketsQuery.OrderByDescending(t => t.Status),
+            _ => ticketsQuery.OrderByDescending(t => t.CreatedAtUtc),
+        };
+        viewModel.Tickets = await ticketsQuery.ToListAsync();
+        
+        return View(viewModel);
+    }
    
+    private async Task PopulateDropdownsAsync(CreateTicketViewModel? model)
+    {
+        ViewBag.Categories = new SelectList(
+            await _context.TicketCategories.Where(c => c.IsActive).OrderBy(c => c.SortOrder).ToListAsync(), "Id", "Name");
+
+        ViewBag.Departments = new SelectList(
+            await _context.Departments.Where(d => d.IsActive).OrderBy(d => d.Name).ToListAsync(), "Id", "Name");
+
+        if (model != null && model.DepartmentId.HasValue)
+        {
+            ViewBag.Projects = new SelectList(
+                await _context.Projects.Where(p => p.DepartmentId == model.DepartmentId && p.IsActive).OrderBy(p => p.Name).ToListAsync(), "Id", "Name");
+        }
+        else
+        {
+            ViewBag.Projects = new SelectList(Enumerable.Empty<SelectListItem>(), "Id", "Name");
+        }
+    }
+
 }

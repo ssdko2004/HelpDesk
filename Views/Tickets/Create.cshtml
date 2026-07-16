@@ -42,7 +42,7 @@
 
     <div class="form-group">
         <label asp-for="ProjectId"></label>
-        <select asp-for="ProjectId" class="form-select" asp-items="ViewBag.Projects">
+        <select asp-for="ProjectId" class="form-select" asp-items="ViewBag.Projects" disabled>
             <option value="">None</option>
         </select>
         <span asp-validation-for="ProjectId" class="text-danger"></span>
@@ -61,7 +61,7 @@
                 const departmentId = this.value;
 
                 const projectSelect = document.getElementById("ProjectId");
-
+                projectSelect.disabled = true;
                 // Clear existing options
                 projectSelect.innerHTML = "";
 
@@ -96,6 +96,10 @@
                     projectSelect.appendChild(option);
 
                 });
+
+                if (projects.length > 0) {
+                    projectSelect.disabled = false;
+                }
 
             });
     </script>
