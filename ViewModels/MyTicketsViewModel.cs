@@ -1,6 +1,5 @@
-
-using System.ComponentModel.DataAnnotations;
 using HelpDesk.Models;
+using HelpDesk.Enums;
 namespace HelpDesk.ViewModels
 {
     public class MyTicketsViewModel

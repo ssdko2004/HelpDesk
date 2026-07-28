@@ -4,7 +4,17 @@
 
 <div class="text-center">
     <h1 class="display-4">Welcome</h1>
-    <p>Learn about <a href="https://learn.microsoft.com/aspnet/core">building Web apps with ASP.NET Core</a>.</p>
+    <p>Learn about <a href="https://learn.microsoft.com/aspnet/core">Lets manage your tickets today!</a>.</p>
+    
+    @if (User.IsInRole("Admin"))
+    {
+        <a asp-controller="Users"
+        asp-action="Index"
+        class="btn btn-primary">
+            View Users
+        </a>
+    }
+
     <a asp-controller="Tickets"
         asp-action="MyTickets"
         class="btn btn-primary">

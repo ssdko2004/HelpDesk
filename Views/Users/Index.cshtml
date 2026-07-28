@@ -1,0 +1,38 @@
+@using HelpDesk.Enums
+@using HelpDesk.ViewModels
+@model UsersViewModel
+
+@* <a asp-controller="Admin"
+    asp-action="CreateUser"
+    class="btn btn-primary">
+    Create User
+</a> *@
+
+<table class="table table-striped">
+    <thead>
+        <tr>           
+            <th>
+                <a asp-action="Index" asp-route-sortOrder="@(Model.SortOrder == UserSortOrders.FullNameAsc ? UserSortOrders.FullNameDesc : UserSortOrders.FullNameAsc)">
+                    Full Name @(Model.SortOrder == UserSortOrders.FullNameAsc ? "▲" : Model.SortOrder == UserSortOrders.FullNameDesc ? "▼" : "")
+                </a>
+            </th>
+            <th>IsActive</th>
+            <th>
+                <a asp-action="Index" asp-route-sortOrder="@(Model.SortOrder == UserSortOrders.DateCreatedAsc ? UserSortOrders.DateCreatedDesc : UserSortOrders.DateCreatedAsc)">
+                    Created Date(UTC) @(Model.SortOrder == UserSortOrders.DateCreatedAsc ? "▲" : Model.SortOrder == UserSortOrders.DateCreatedDesc ? "▼" : "")
+                </a>
+            </th>
+               
+        </tr>
+    </thead>
+    <tbody>
+        @foreach (var user in Model.Users)
+        {
+            <tr>               
+                <td>@user.FullName</td>
+                <td>@user.IsActive</td>
+                <td>@user.CreatedAtUtc.ToString("MM/dd/yyyy")</td>
+            </tr>
+        }
+    </tbody>
+</table>

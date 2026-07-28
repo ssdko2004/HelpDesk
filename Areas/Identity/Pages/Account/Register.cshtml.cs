@@ -48,8 +48,6 @@ namespace HelpDesk.Areas.Identity.Pages.Account
         {
             ReturnUrl = returnUrl;
         }
-
-        [HttpPost]
         public async Task<IActionResult> OnPostAsync(string? returnUrl = null)
         {
             returnUrl ??= Url.Content("~/");

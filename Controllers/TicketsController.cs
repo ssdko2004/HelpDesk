@@ -5,6 +5,7 @@ using HelpDesk.ViewModels;
 using HelpDesk.Data;
 using Microsoft.AspNetCore.Mvc.Rendering;
 using Microsoft.EntityFrameworkCore;
+using HelpDesk.Enums;
 
 namespace HelpDesk.Controllers;
 
@@ -53,8 +54,7 @@ public class TicketsController(ApplicationDbContext context) : Controller
 
     [HttpGet]
     public async Task<IActionResult> ProjectsByDepartmentAsync(Guid departmentId)
-    {
-        Console.WriteLine($"Fetching projects for DepartmentId: {departmentId}");
+    {       
         var projects = await _context.Projects
             .Where(p => p.DepartmentId == departmentId && p.IsActive)
             .OrderBy(p => p.Name)
